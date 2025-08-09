@@ -205,11 +205,21 @@
                         class="w-full bg-gray-800 bg-opacity-80 text-white px-6 py-4 rounded-xl border border-gray-700 focus:border-teal-400 focus:outline-none mb-6 backdrop-blur-sm"
                         id="startup-input"
                     >
-                    <button class="btn-gradient w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300">
+                    <button id="hero-generate-btn" class="btn-gradient w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300">
                         Generate Name
                     </button>
                 </div>
-            </div>
+
+                <div id="hero-loading" class="hidden text-center py-8 mt-8">
+                    <div class="animate-spin w-8 h-8 border-2 border-teal-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p class="text-gray-400">AI is crafting perfect names...</p>
+                </div>
+                <div id="hero-results" class="hidden mt-8">
+                    <h3 class="text-xl font-semibold mb-6 text-center">✨ Here are your AI-generated names:</h3>
+                    <div class="grid md:grid-cols-2 gap-4" id="hero-names-grid">
+                        </div>
+                </div>
+                </div>
         </div>
     </section>
 
@@ -440,19 +450,10 @@
             <h2 class="text-4xl font-bold mb-6 animate-fade-up">Want even more creative names?</h2>
             <p class="text-xl text-gray-400 mb-12 animate-fade-up stagger-1">Get 20+ extra name ideas in your inbox.</p>
             
-            <div class="glass-effect rounded-2xl p-8 max-w-2xl mx-auto animate-scale-in">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <input 
-                        type="email" 
-                        placeholder="Enter your email..."
-                        class="flex-1 bg-gray-800 text-white px-6 py-4 rounded-xl border border-gray-700 focus:border-teal-400 focus:outline-none"
-                    >
-                    <button class="btn-gradient px-8 py-4 rounded-xl font-semibold">
-                        Get Names
-                    </button>
-                </div>
-                <p class="text-gray-500 text-sm mt-4">No spam. Unsubscribe anytime.</p>
+            <div class="max-w-2xl mx-auto">
+                 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSftbWES6jvtnykdKjwrk-CoL6Ymzwm4amMRychndE6Fxj4tWg/viewform?embedded=true" width="100%" height="554" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
             </div>
+
         </div>
     </section>
 
@@ -552,7 +553,7 @@
         });
 
         // Placeholder cycling for input
-        const input = document.getElementById('startup-input');
+        const mainInput = document.getElementById('startup-input');
         const placeholders = [
             'AI fitness coaching app',
             'Sustainable fashion marketplace',
@@ -565,7 +566,7 @@
         
         setInterval(() => {
             placeholderIndex = (placeholderIndex + 1) % placeholders.length;
-            input.placeholder = `Try: ${placeholders[placeholderIndex]}`;
+            mainInput.placeholder = `Try: ${placeholders[placeholderIndex]}`;
         }, 3000);
 
         // Scroll-triggered animations
@@ -593,17 +594,24 @@
             el.style.animationPlayState = 'running';
         });
 
+        // --- START: UPDATED SCRIPT FOR HERO AND DEMO FORMS ---
 
-        // --- START: MODIFIED CODE FOR REAL AI INTEGRATION ---
+        // --- Get Elements ---
+        // Hero Section
+        const heroInput = document.getElementById('startup-input');
+        const heroGenerateBtn = document.getElementById('hero-generate-btn');
+        const heroLoading = document.getElementById('hero-loading');
+        const heroResults = document.getElementById('hero-results');
+        const heroNamesGrid = document.getElementById('hero-names-grid');
 
-        // Demo functionality
+        // Demo Section
         const demoInput = document.getElementById('demo-input');
         const demoGenerateBtn = document.getElementById('demo-generate-btn');
         const demoLoading = document.getElementById('demo-loading');
         const demoResults = document.getElementById('demo-results');
         const demoNamesGrid = document.getElementById('demo-names-grid');
 
-        // This function creates the HTML for each name card. It's kept from the original code.
+        // --- Reusable Functions ---
         function createNameCard(nameData) {
             return `
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in">
@@ -617,11 +625,9 @@
                 </div>
             `;
         }
-        
-        // This function copies text to the clipboard. It's kept from the original code.
+
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // Show a brief success message
                 const originalText = event.target.textContent;
                 event.target.textContent = 'Copied!';
                 event.target.classList.add('bg-green-600');
@@ -631,37 +637,32 @@
                 }, 1000);
             });
         }
-        
-        // Make copyToClipboard function globally available
         window.copyToClipboard = copyToClipboard;
-        
-        // This is the NEW event listener for the "Generate Names" button.
-        // It now calls our backend function to get a response from the real AI.
-        demoGenerateBtn.addEventListener('click', async () => {
-            const input = demoInput.value.trim();
 
-            if (!input) {
-                demoInput.focus();
-                demoInput.classList.add('ring-2', 'ring-red-500');
+        // Reusable function to fetch names from the AI
+        async function getAINames(inputEl, loadingEl, resultsEl, gridEl) {
+            const prompt = inputEl.value.trim();
+
+            if (!prompt) {
+                inputEl.focus();
+                inputEl.classList.add('ring-2', 'ring-red-500');
                 setTimeout(() => {
-                    demoInput.classList.remove('ring-2', 'ring-red-500');
+                    inputEl.classList.remove('ring-2', 'ring-red-500');
                 }, 2000);
                 return;
             }
 
-            // Hide results and show loading spinner
-            demoResults.classList.add('hidden');
-            demoNamesGrid.innerHTML = ''; // Clear previous results
-            demoLoading.classList.remove('hidden');
+            resultsEl.classList.add('hidden');
+            gridEl.innerHTML = '';
+            loadingEl.classList.remove('hidden');
 
             try {
-                // This is the new part: call our backend function!
                 const response = await fetch('/.netlify/functions/generate-names', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ prompt: input }),
+                    body: JSON.stringify({ prompt }),
                 });
 
                 if (!response.ok) {
@@ -669,41 +670,51 @@
                 }
 
                 const data = await response.json();
-                
-                // The AI returns a single string with names on new lines.
-                // We need to split it into an array.
                 const namesArray = data.names.trim().split('\n');
-
-                // Create the HTML for each name card
+                
                 const namesHtml = namesArray.map(line => {
                     const parts = line.split(':');
                     const name = parts[0] ? parts[0].trim() : 'Unnamed';
                     const tagline = parts[1] ? parts[1].trim() : 'No tagline provided.';
-                    
                     return createNameCard({ name, tagline });
                 }).join('');
                 
-                demoNamesGrid.innerHTML = namesHtml;
+                gridEl.innerHTML = namesHtml;
 
             } catch (error) {
                 console.error(error);
-                demoNamesGrid.innerHTML = `<p class="text-red-400 text-center col-span-full">Sorry, something went wrong. Please try again.</p>`;
+                gridEl.innerHTML = `<p class="text-red-400 text-center col-span-full">Sorry, something went wrong. Please try again.</p>`;
             } finally {
-                // Hide loading and show results
-                demoLoading.classList.add('hidden');
-                demoResults.classList.remove('hidden');
+                loadingEl.classList.add('hidden');
+                resultsEl.classList.remove('hidden');
+            }
+        }
+
+        // --- Event Listeners ---
+        // Hero Section Button
+        heroGenerateBtn.addEventListener('click', () => {
+            getAINames(heroInput, heroLoading, heroResults, heroNamesGrid);
+        });
+
+        // Demo Section Button
+        demoGenerateBtn.addEventListener('click', () => {
+            getAINames(demoInput, demoLoading, demoResults, demoNamesGrid);
+        });
+
+        // Allow Enter key to trigger generation
+        heroInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                heroGenerateBtn.click();
             }
         });
 
-
-        // Allow Enter key to trigger generation
         demoInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 demoGenerateBtn.click();
             }
         });
-        
-        // --- END: MODIFIED CODE FOR REAL AI INTEGRATION ---
+
+        // --- END: UPDATED SCRIPT FOR HERO AND DEMO FORMS ---
 
     </script>
 </body>
