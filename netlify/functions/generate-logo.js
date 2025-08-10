@@ -1,153 +1,160 @@
-// Improved Logo Generation Frontend Code
-// Replace the existing logo generation code in your HTML file
+// এই ফাইলটা এই জায়গায় রাখুন: netlify/functions/generate-logo.js
 
-/* -------------------------------
-   START: AI Logo Generator Logic (IMPROVED)
-   ------------------------------- */
+const API_KEY = process.env.FIREWORKS_API_KEY || 'fw_3ZJ9huy4CtbqPnCTR5ytxTrx';
 
-// DOM for logo generator
-const brandInput = document.getElementById('brand-name');
-const generateBtn = document.getElementById('generate-logo-btn');
-const previewBox = document.getElementById('logo-preview');
-const downloadSvgBtn = document.getElementById('download-svg');
-const downloadPngBtn = document.getElementById('download-png');
-const logoDescriptionInput = document.getElementById('logo-description-input');
-const logoLoading = document.getElementById('logo-loading');
+exports.handler = async (event, context) => {
+  // CORS headers - এটা ব্রাউজার এবং সার্ভারের মধ্যে যোগাযোগের জন্য দরকার
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json',
+  };
 
-let lastImageData = ''; // Store the generated image data
+  // OPTIONS request handle করা (এটা ব্রাউজার নিজে নিজে পাঠায়)
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
 
-generateBtn && generateBtn.addEventListener('click', async () => {
-    const prompt = logoDescriptionInput.value.trim();
-    const brandName = brandInput.value.trim() || 'Logo';
+  // শুধুমাত্র POST request গ্রহণ করব
+  if (event.httpMethod !== 'POST') {
+    return { 
+      statusCode: 405, 
+      headers,
+      body: JSON.stringify({ error: 'শুধুমাত্র POST method allowed' })
+    };
+  }
+
+  console.log('ফাংশন শুরু হয়েছে, API key আছে কি?', !!API_KEY);
+
+  try {
+    // ইউজারের পাঠানো ডেটা পার্স করা
+    const { prompt } = JSON.parse(event.body);
 
     if (!prompt) {
-        alert('Please describe the logo you want to generate.');
-        logoDescriptionInput.focus();
-        logoDescriptionInput.classList.add('ring-2', 'ring-red-500');
-        setTimeout(() => logoDescriptionInput.classList.remove('ring-2', 'ring-red-500'), 2000);
-        return;
+      return { 
+        statusCode: 400, 
+        headers,
+        body: JSON.stringify({ error: 'প্রম্পট দিতে হবে' })
+      };
     }
 
-    // Show loading state
-    previewBox.innerHTML = '';
-    previewBox.classList.add('hidden');
-    logoLoading.classList.remove('hidden');
-    downloadSvgBtn.disabled = true;
-    downloadPngBtn.disabled = true;
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating...';
+    console.log('লোগো তৈরি করা হচ্ছে:', prompt);
 
-    try {
-        console.log('Sending request to generate logo...');
-        
-        const response = await fetch('/.netlify/functions/generate-logo', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ prompt: `${brandName} logo: ${prompt}` }),
-        });
+    // AI এর জন্য ভালো প্রম্পট তৈরি করা
+    const aiPrompt = `Professional logo design: ${prompt}. Minimalist, clean, modern vector graphic. Simple geometric shapes, business branding style. Plain white background. High quality logo.`;
 
-        console.log('Response status:', response.status);
+    // Fireworks AI এর সঠিক URL
+    const API_URL = "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/flux-1-schnell";
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server error:', errorText);
-            let errorMessage = 'Failed to generate logo';
-            
-            try {
-                const errorData = JSON.parse(errorText);
-                errorMessage = errorData.error || errorMessage;
-            } catch (e) {
-                // If we can't parse JSON, use the raw text
-                errorMessage = errorText || errorMessage;
-            }
-            
-            throw new Error(errorMessage);
-        }
+    console.log('API তে request পাঠানো হচ্ছে...');
 
-        const data = await response.json();
-        console.log('Received response data');
+    // API কল করা
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({
+        prompt: aiPrompt,
+        width: 512,
+        height: 512,
+        steps: 4,
+        guidance_scale: 1.0,
+        seed: Math.floor(Math.random() * 100000),
+        safety_check: false,
+        output_image_format: "PNG"
+      }),
+    });
 
-        if (!data.image) {
-            throw new Error('No image data received from server');
-        }
+    console.log('API response status:', response.status);
 
-        lastImageData = data.image;
-
-        // Render the AI-generated image
-        previewBox.innerHTML = `
-            <img style="width:100%;height:100%;object-fit:contain;border-radius:12px;" 
-                 src="${lastImageData}" 
-                 alt="${brandName} Logo Preview" 
-                 onload="console.log('Image loaded successfully')"
-                 onerror="console.error('Failed to load generated image'); this.style.display='none'; this.parentElement.innerHTML='<p class=\\'text-red-400 text-center text-xs p-2\\'>Failed to display logo</p>';" />
-        `;
-
-        console.log('Logo generated and displayed successfully');
-
-    } catch (error) {
-        console.error('Logo generation error:', error);
-        
-        let userMessage = 'Sorry, something went wrong while generating your logo.';
-        
-        if (error.message.includes('API key')) {
-            userMessage = 'Service configuration issue. Please try again later.';
-        } else if (error.message.includes('Failed to fetch')) {
-            userMessage = 'Network error. Please check your connection and try again.';
-        } else if (error.message.length < 100) {
-            userMessage = error.message;
-        }
-
-        previewBox.innerHTML = `
-            <div class="text-center p-4">
-                <div class="text-red-400 text-sm mb-2">⚠️ Generation Failed</div>
-                <p class="text-gray-400 text-xs">${userMessage}</p>
-                <button class="mt-2 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs" onclick="location.reload()">
-                    Refresh Page
-                </button>
-            </div>
-        `;
-    } finally {
-        // Hide loading state and restore button
-        logoLoading.classList.add('hidden');
-        previewBox.classList.remove('hidden');
-        downloadSvgBtn.disabled = false;
-        downloadPngBtn.disabled = false;
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Logo';
-    }
-});
-
-downloadSvgBtn && downloadSvgBtn.addEventListener('click', () => {
-    alert('AI-generated logos are provided as PNG images. Use the PNG download button.');
-});
-
-downloadPngBtn && downloadPngBtn.addEventListener('click', () => {
-    if (!lastImageData) {
-        alert('Please generate a logo first.');
-        return;
-    }
+    const responseText = await response.text();
     
-    try {
-        const brandName = (brandInput && brandInput.value) ? 
-            brandInput.value.replace(/[^a-zA-Z0-9]/g, '_') : 'logo';
-        
-        const a = document.createElement('a');
-        a.href = lastImageData;
-        a.download = `${brandName}_logo.png`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        
-        console.log('Download initiated');
-    } catch (error) {
-        console.error('Download failed:', error);
-        alert('Download failed. Please try right-clicking the image and selecting "Save image as..."');
-    }
-});
+    if (!response.ok) {
+      console.error('API error:', response.status, responseText);
+      
+      // যদি প্রথম API fail করে, দ্বিতীয় API try করি
+      console.log('বিকল্প API try করা হচ্ছে...');
+      
+      const fallbackURL = "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/stable-diffusion-xl-1024-v1-0";
+      
+      const fallbackResponse = await fetch(fallbackURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          width: 512,
+          height: 512,
+          steps: 20,
+          guidance_scale: 7.5,
+          seed: Math.floor(Math.random() * 100000),
+          safety_check: false,
+          output_image_format: "PNG"
+        }),
+      });
 
-/* -------------------------------
-   END: AI Logo Generator Logic (IMPROVED)
-   ------------------------------- */
+      const fallbackText = await fallbackResponse.text();
+      
+      if (!fallbackResponse.ok) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: `উভয় API fail হয়েছে। Error: ${responseText}`,
+            details: 'API key বা credit সমস্যা হতে পারে'
+          })
+        };
+      }
+
+      // বিকল্প API সফল হলে
+      const fallbackData = JSON.parse(fallbackText);
+      if (fallbackData && fallbackData.image) {
+        const imageData = fallbackData.image.startsWith('data:') ? 
+          fallbackData.image : 
+          `data:image/png;base64,${fallbackData.image}`;
+
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ image: imageData }),
+        };
+      }
+    }
+
+    // প্রধান API সফল হলে
+    const data = JSON.parse(responseText);
+    console.log('সফল! Image পাওয়া গেছে');
+
+    let imageData;
+    if (data.image) {
+      imageData = data.image.startsWith('data:') ? 
+        data.image : 
+        `data:image/png;base64,${data.image}`;
+    } else {
+      throw new Error('API response এ image পাওয়া যায়নি');
+    }
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ image: imageData }),
+    };
+
+  } catch (error) {
+    console.error('ফাংশনে error:', error);
+    
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        error: 'সার্ভার error: ' + error.message,
+        help: 'Netlify logs চেক করুন'
+      }),
+    };
+  }
+};
