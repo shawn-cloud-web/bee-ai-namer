@@ -1,7 +1,6 @@
 // File: netlify/functions/generate-logo.js
 
 const API_KEY = process.env.FIREWORKS_API_KEY; // This key should be set in Netlify
-const API_URL = "https://api.fireworks.ai/inference/v1/images/generations";
 
 exports.handler = async (event) => {
   // Only accept POST requests
@@ -19,6 +18,10 @@ exports.handler = async (event) => {
     // Create a good prompt for the AI
     const fullPrompt = `vector logo of ${prompt}, minimalist, clean, graphic design, on a plain white background, high quality, studio lighting`;
 
+    // --- The Corrected API URL ---
+    // The model "stable-diffusion-xl-1024-v1-0" is now part of the URL.
+    const API_URL = "https://api.fireworks.ai/inference/v1/images/generations/stable-diffusion-xl-1024-v1-0";
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -27,7 +30,6 @@ exports.handler = async (event) => {
         'Authorization': `Bearer ${API_KEY}`,
       },
       body: JSON.stringify({
-        model: "stable-diffusion-xl-1024-v1-0", // Use the updated model ID
         prompt: fullPrompt,
         n: 1, // We want to generate one image
         size: "1024x1024", // Image size
