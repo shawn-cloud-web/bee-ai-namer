@@ -1,10 +1,10 @@
 // File: netlify/functions/generate-logo.js
 
-const API_KEY = process.env.FIREWORKS_API_KEY; // আমরা এই কী Netlify-তে সেট করব
+const API_KEY = process.env.FIREWORKS_API_KEY; // This key should be set in Netlify
 const API_URL = "https://api.fireworks.ai/inference/v1/images/generations";
 
 exports.handler = async (event) => {
-  // শুধুমাত্র POST অনুরোধ গ্রহণ করুন
+  // Only accept POST requests
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -16,7 +16,7 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: 'Prompt is required' };
     }
 
-    // AI-কে দেওয়ার জন্য একটি ভালো প্রম্পট তৈরি করুন
+    // Create a good prompt for the AI
     const fullPrompt = `vector logo of ${prompt}, minimalist, clean, graphic design, on a plain white background, high quality, studio lighting`;
 
     const response = await fetch(API_URL, {
@@ -27,24 +27,24 @@ exports.handler = async (event) => {
         'Authorization': `Bearer ${API_KEY}`,
       },
       body: JSON.stringify({
-        model: "stability/stable-diffusion-xl-1024-v1-0",
+        model: "stable-diffusion-xl-1024-v1-0", // Use the updated model ID
         prompt: fullPrompt,
-        n: 1, // আমরা একটি ছবি তৈরি করব
-        size: "1024x1024", // ছবির সাইজ
-        response_format: "b64_json", // আমরা base64 ফরম্যাটে ছবি চাই
+        n: 1, // We want to generate one image
+        size: "1024x1024", // Image size
+        response_format: "b64_json", // We want the image in base64 format
       }),
     });
 
     if (!response.ok) {
       const errorBody = await response.text();
       console.error('Fireworks AI API error:', errorBody);
-      throw new Error(`AI API failed with status: ${response.status}`);
+      throw new Error(`AI API failed with status: ${response.status} - ${errorBody}`);
     }
 
     const data = await response.json();
     const imageBase64 = data.data[0].b64_json;
 
-    // Base64 ইমেজটি ক্লায়েন্টকে ফেরত পাঠান
+    // Return the base64 image to the client
     return {
       statusCode: 200,
       headers: {
