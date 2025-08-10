@@ -676,161 +676,92 @@
         // --- END: NAME GENERATOR LOGIC ---
 
 
-       /* -------------------------------
-   START: AI Logo Generator Logic (বাংলা গাইড সহ)
-   ------------------------------- */
+        /* -------------------------------
+           START: AI Logo Generator Logic
+           ------------------------------- */
 
-// HTML থেকে elements গুলো নেয়া
-const brandInput = document.getElementById('brand-name');
-const generateBtn = document.getElementById('generate-logo-btn');
-const previewBox = document.getElementById('logo-preview');
-const downloadSvgBtn = document.getElementById('download-svg');
-const downloadPngBtn = document.getElementById('download-png');
-const logoDescriptionInput = document.getElementById('logo-description-input');
-const logoLoading = document.getElementById('logo-loading');
+        // DOM for logo generator
+        const brandInput = document.getElementById('brand-name');
+        const generateBtn = document.getElementById('generate-logo-btn');
+        const previewBox = document.getElementById('logo-preview');
+        const downloadSvgBtn = document.getElementById('download-svg');
+        const downloadPngBtn = document.getElementById('download-png');
+        const logoDescriptionInput = document.getElementById('logo-description-input');
+        const logoLoading = document.getElementById('logo-loading');
 
-let lastImageData = ''; // তৈরি হওয়া লোগো সেভ রাখার জন্য
+        let lastSvgString = ''; // This will now store the base64 image data URL
 
-// Generate button এ ক্লিক হলে এই ফাংশন চালু হবে
-generateBtn && generateBtn.addEventListener('click', async () => {
-    const prompt = logoDescriptionInput.value.trim();
-    const brandName = brandInput.value.trim() || 'Logo';
+        generateBtn && generateBtn.addEventListener('click', async () => {
+            const prompt = logoDescriptionInput.value.trim();
+            const brandName = brandInput.value.trim() || 'Logo';
 
-    // যদি কোন prompt না দেয়
-    if (!prompt) {
-        alert('আপনি কি ধরনের লোগো চান তা লিখুন।');
-        logoDescriptionInput.focus();
-        logoDescriptionInput.classList.add('ring-2', 'ring-red-500');
-        setTimeout(() => logoDescriptionInput.classList.remove('ring-2', 'ring-red-500'), 2000);
-        return;
-    }
+            if (!prompt) {
+                alert('Please describe the logo you want to generate.');
+                logoDescriptionInput.focus();
+                return;
+            }
 
-    // Loading দেখানো
-    previewBox.innerHTML = '';
-    previewBox.classList.add('hidden');
-    logoLoading.classList.remove('hidden');
-    downloadSvgBtn.disabled = true;
-    downloadPngBtn.disabled = true;
-    generateBtn.disabled = true;
-    generateBtn.textContent = 'তৈরি করা হচ্ছে...';
+            // Show loading state
+            previewBox.innerHTML = '';
+            previewBox.classList.add('hidden');
+            logoLoading.classList.remove('hidden');
+            downloadSvgBtn.disabled = true;
+            downloadPngBtn.disabled = true;
 
-    try {
-        console.log('লোগো তৈরির request পাঠানো হচ্ছে...');
-        
-        // Netlify function এ request পাঠানো
-        const response = await fetch('/.netlify/functions/generate-logo', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ prompt: `${brandName} logo: ${prompt}` }),
+            try {
+                const response = await fetch('/.netlify/functions/generate-logo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get a response from the AI.');
+                }
+
+                const data = await response.json();
+                lastSvgString = data.image; // Store the base64 data URL
+
+                // Render the AI-generated image
+                previewBox.innerHTML = `
+                    <img style="width:128px;height:128px;object-fit:contain;border-radius:12px;" 
+                         src="${lastSvgString}" alt="${brandName} Logo Preview" />
+                `;
+
+            } catch (error) {
+                console.error(error);
+                previewBox.innerHTML = `<p class="text-red-400 text-center text-xs p-2">Sorry, something went wrong. Please try again.</p>`;
+            } finally {
+                // Hide loading state
+                logoLoading.classList.add('hidden');
+                previewBox.classList.remove('hidden');
+                downloadSvgBtn.disabled = false;
+                downloadPngBtn.disabled = false;
+            }
         });
 
-        console.log('Response status:', response.status);
+        downloadSvgBtn && downloadSvgBtn.addEventListener('click', () => {
+            alert('AI-generated logos can only be downloaded as PNG.');
+        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server error:', errorText);
-            
-            let errorMessage = 'লোগো তৈরি করতে পারিনি';
-            
-            try {
-                const errorData = JSON.parse(errorText);
-                errorMessage = errorData.error || errorMessage;
-            } catch (e) {
-                errorMessage = errorText || errorMessage;
+        downloadPngBtn && downloadPngBtn.addEventListener('click', () => {
+            if (!lastSvgString) {
+                alert('Please generate a logo first.');
+                return;
             }
             
-            throw new Error(errorMessage);
-        }
+            const a = document.createElement('a');
+            a.href = lastSvgString; // The base64 data URL
+            a.download = ((brandInput && brandInput.value) ? brandInput.value.replace(/\s+/g, '_') : 'logo') + '.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        });
 
-        const data = await response.json();
-        console.log('Response পাওয়া গেছে');
+        /* -------------------------------
+           END: AI Logo Generator Logic
+           ------------------------------- */
 
-        if (!data.image) {
-            throw new Error('Server থেকে image পাওয়া যায়নি');
-        }
-
-        lastImageData = data.image;
-
-        // তৈরি হওয়া লোগো দেখানো
-        previewBox.innerHTML = `
-            <img style="width:100%;height:100%;object-fit:contain;border-radius:12px;" 
-                 src="${lastImageData}" 
-                 alt="${brandName} Logo Preview" 
-                 onload="console.log('লোগো সফলভাবে load হয়েছে')"
-                 onerror="console.error('লোগো load হয়নি'); this.style.display='none'; this.parentElement.innerHTML='<p class=\\'text-red-400 text-center text-xs p-2\\'>লোগো দেখাতে পারিনি</p>';" />
-        `;
-
-        console.log('লোগো সফলভাবে তৈরি এবং প্রদর্শিত হয়েছে');
-
-    } catch (error) {
-        console.error('লোগো তৈরিতে error:', error);
-        
-        let userMessage = 'দুঃখিত, লোগো তৈরি করতে সমস্যা হয়েছে।';
-        
-        if (error.message.includes('API key')) {
-            userMessage = 'সার্ভিস configuration সমস্যা। পরে আবার চেষ্টা করুন।';
-        } else if (error.message.includes('Failed to fetch')) {
-            userMessage = 'ইন্টারনেট সংযোগ চেক করুন এবং আবার চেষ্টা করুন।';
-        } else if (error.message.length < 100) {
-            userMessage = error.message;
-        }
-
-        previewBox.innerHTML = `
-            <div class="text-center p-4">
-                <div class="text-red-400 text-sm mb-2">⚠️ তৈরি করতে পারিনি</div>
-                <p class="text-gray-400 text-xs">${userMessage}</p>
-                <button class="mt-2 bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs" onclick="location.reload()">
-                    পেজ রিফ্রেশ করুন
-                </button>
-            </div>
-        `;
-    } finally {
-        // Loading বন্ধ করা এবং button ঠিক করা
-        logoLoading.classList.add('hidden');
-        previewBox.classList.remove('hidden');
-        downloadSvgBtn.disabled = false;
-        downloadPngBtn.disabled = false;
-        generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Logo';
-    }
-});
-
-// SVG Download button (আসলে PNG দেব)
-downloadSvgBtn && downloadSvgBtn.addEventListener('click', () => {
-    alert('AI লোগো PNG format এ পাওয়া যায়। PNG download button ব্যবহার করুন।');
-});
-
-// PNG Download button
-downloadPngBtn && downloadPngBtn.addEventListener('click', () => {
-    if (!lastImageData) {
-        alert('প্রথমে একটা লোগো তৈরি করুন।');
-        return;
-    }
-    
-    try {
-        const brandName = (brandInput && brandInput.value) ? 
-            brandInput.value.replace(/[^a-zA-Z0-9]/g, '_') : 'logo';
-        
-        const a = document.createElement('a');
-        a.href = lastImageData;
-        a.download = `${brandName}_logo.png`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        
-        console.log('Download শুরু হয়েছে');
-    } catch (error) {
-        console.error('Download failed:', error);
-        alert('Download করতে পারিনি। image এ right-click করে "Save image as..." চেষ্টা করুন।');
-    }
-});
-
-/* -------------------------------
-   END: AI Logo Generator Logic (বাংলা গাইড সহ)
-   ------------------------------- */
     </script>
 </body>
 </html>
