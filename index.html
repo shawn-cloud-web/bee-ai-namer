@@ -1,66 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Bee - AI-Powered Startup & Product Namer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
+        * { font-family: 'Inter', sans-serif; }
+
         .gradient-spotlight {
             background: radial-gradient(circle at center, rgba(10, 182, 188, 0.15) 0%, rgba(4, 92, 67, 0.08) 50%, transparent 70%);
         }
-        
         .gradient-spotlight-hero {
             background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(10, 182, 188, 0.2) 0%, rgba(4, 92, 67, 0.1) 50%, transparent 80%);
         }
-        
         .gradient-spotlight-angle {
             background: linear-gradient(45deg, rgba(10, 182, 188, 0.1) 0%, rgba(4, 92, 67, 0.05) 50%, transparent 100%);
         }
-        
         .glass-effect {
             background: rgba(246, 246, 246, 0.05);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(246, 246, 246, 0.1);
         }
-        
         .hero-glass-effect {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(246, 246, 246, 0.1);
         }
-        
-        .glow-hover {
-            transition: all 0.3s ease;
-        }
-        
+        .glow-hover { transition: all 0.3s ease; }
         .glow-hover:hover {
             box-shadow: 0 0 30px rgba(10, 182, 188, 0.3);
             transform: translateY(-2px);
         }
-        
         .text-gradient {
             background: linear-gradient(135deg, #0AB6BC, #045C43);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
         .btn-gradient {
             background: linear-gradient(135deg, #0AB6BC, #045C43);
         }
-        
         .btn-gradient:hover {
             background: linear-gradient(135deg, #0AB6BC, #0AB6BC);
             box-shadow: 0 0 20px rgba(10, 182, 188, 0.4);
         }
-        
         .social-icon {
             display: inline-flex;
             align-items: center;
@@ -73,57 +58,38 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
-        
         .social-icon:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(10, 182, 188, 0.15);
             border-color: rgba(10, 182, 188, 0.3);
             background: rgba(10, 182, 188, 0.1);
         }
-        
-        .animate-fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s ease forwards;
-        }
-        
-        .animate-fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeUp 0.8s ease forwards;
-        }
-        
-        .animate-scale-in {
-            opacity: 0;
-            transform: scale(0.9);
-            animation: scaleIn 0.8s ease forwards;
-        }
-        
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        
-        @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes scaleIn {
-            to { opacity: 1; transform: scale(1); }
-        }
-        
+        .animate-fade-in { opacity: 0; animation: fadeIn 0.8s ease forwards; }
+        .animate-fade-up { opacity: 0; transform: translateY(30px); animation: fadeUp 0.8s ease forwards; }
+        .animate-scale-in { opacity: 0; transform: scale(0.9); animation: scaleIn 0.8s ease forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
         .stagger-1 { animation-delay: 0.1s; }
         .stagger-2 { animation-delay: 0.2s; }
         .stagger-3 { animation-delay: 0.3s; }
         .stagger-4 { animation-delay: 0.4s; }
-        
-        /* Mobile menu styles */
-        .mobile-menu {
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
+        .mobile-menu { transform: translateX(100%); transition: transform 0.3s ease; }
+        .mobile-menu.open { transform: translateX(0); }
+
+        /* Cinematic Gradient Overlay */
+        .bg-gradient-to-b {
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.7),
+                rgba(10, 182, 188, 0.15),
+                rgba(0, 0, 0, 0.8)
+            );
         }
-        
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
+
+        /* small helpers for logo preview area */
+        .preview-box { width: 8rem; height: 8rem; display:flex; align-items:center; justify-content:center; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); }
+        .tiny-label { font-size:0.85rem; color:#AAB7B7; }
     </style>
 
 <meta name="description" content="Bee - AI-powered tool for startup and product naming. Generate creative names, check domain availability, and create logos instantly.">
@@ -131,23 +97,23 @@
 
 </head>
 <body class="bg-black text-gray-100 overflow-x-hidden">
-    
+
     <header class="fixed top-0 w-full z-50 glass-effect">
         <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="text-2xl font-bold text-gradient">Bee</div>
-                
+
                 <nav class="hidden md:flex space-x-8">
                     <a href="#home" class="text-gray-300 hover:text-teal-400 transition-colors">Home</a>
                     <a href="#features" class="text-gray-300 hover:text-teal-400 transition-colors">Features</a>
                     <a href="#pricing" class="text-gray-300 hover:text-teal-400 transition-colors">Pricing</a>
                     <a href="#contact" class="text-gray-300 hover:text-teal-400 transition-colors">Contact</a>
                 </nav>
-                
+
                 <button class="hidden md:block btn-gradient px-6 py-2 rounded-lg font-semibold transition-all duration-300">
                     Try Now
                 </button>
-                
+
                 <button id="mobile-toggle" class="md:hidden">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -155,7 +121,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-64 bg-gray-900 shadow-xl md:hidden">
             <div class="p-6">
                 <button id="mobile-close" class="absolute top-4 right-4">
@@ -175,19 +141,10 @@
     </header>
 
     <section id="home" class="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
-        <div class="absolute inset-0 w-full h-full z-0">
-            <iframe 
-                src='https://my.spline.design/orbscrolltriggerforhero-2UkRzh6aJZPmsE0sX1nwACK5/' 
-                frameborder='0' 
-                width='100%' 
-                height='100%'
-                class="w-full h-full object-cover"
-                loading="lazy"
-            ></iframe>
-        </div>
-        
-        <div class="absolute inset-0 bg-black bg-opacity-40 z-10"></div>
-        
+        <div id="hero-bg" class="absolute inset-0 z-0"></div>
+
+        <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80 z-10"></div>
+
         <div class="max-w-4xl mx-auto text-center relative z-20">
             <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-up">
                 Name Your <span class="text-gradient">Startup</span><br>
@@ -196,11 +153,11 @@
             <p class="text-xl md:text-2xl text-gray-400 mb-12 animate-fade-up stagger-1">
                 Generate catchy, brandable names + taglines instantly.
             </p>
-            
+
             <div class="max-w-2xl mx-auto animate-fade-up stagger-2">
                 <div class="glass-effect rounded-2xl p-8 glow-hover backdrop-blur-lg bg-black bg-opacity-30">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         placeholder="Describe your startup or product..."
                         class="w-full bg-gray-800 bg-opacity-80 text-white px-6 py-4 rounded-xl border border-gray-700 focus:border-teal-400 focus:outline-none mb-6 backdrop-blur-sm"
                         id="startup-input"
@@ -216,10 +173,9 @@
                 </div>
                 <div id="hero-results" class="hidden mt-8">
                     <h3 class="text-xl font-semibold mb-6 text-center">✨ Here are your AI-generated names:</h3>
-                    <div class="grid md:grid-cols-2 gap-4" id="hero-names-grid">
-                        </div>
+                    <div class="grid md:grid-cols-2 gap-4" id="hero-names-grid"></div>
                 </div>
-                </div>
+            </div>
         </div>
     </section>
 
@@ -229,32 +185,31 @@
             <p class="text-xl text-gray-400 text-center mb-12 animate-fade-up stagger-1">
                 See the magic happen in real-time
             </p>
-            
+
             <div class="glass-effect rounded-2xl p-8 animate-scale-in">
                 <div class="flex flex-col md:flex-row gap-4 mb-8">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         id="demo-input"
                         placeholder="e.g., AI-powered fitness tracking app"
                         class="flex-1 bg-gray-800 text-white px-6 py-4 rounded-xl border border-gray-700 focus:border-teal-400 focus:outline-none transition-colors"
                     >
-                    <button 
+                    <button
                         id="demo-generate-btn"
                         class="btn-gradient px-8 py-4 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap"
                     >
                         Generate Names
                     </button>
                 </div>
-                
+
                 <div id="demo-loading" class="hidden text-center py-8">
                     <div class="animate-spin w-8 h-8 border-2 border-teal-400 border-t-transparent rounded-full mx-auto mb-4"></div>
                     <p class="text-gray-400">AI is crafting perfect names...</p>
                 </div>
-                
+
                 <div id="demo-results" class="hidden">
                     <h3 class="text-xl font-semibold mb-6 text-center">✨ Here are your AI-generated names:</h3>
-                    <div class="grid md:grid-cols-2 gap-4" id="demo-names-grid">
-                        </div>
+                    <div class="grid md:grid-cols-2 gap-4" id="demo-names-grid"></div>
                     <div class="text-center mt-8">
                         <button class="btn-gradient px-6 py-2 rounded-lg font-semibold">
                             Sign Up for More Names
@@ -278,7 +233,7 @@
                         <button class="bg-gray-800 px-3 py-1 rounded text-sm hover:bg-gray-700 transition-colors">Save</button>
                     </div>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in stagger-1">
                     <h3 class="text-xl font-semibold text-teal-400 mb-2">NexaFlow</h3>
                     <p class="text-gray-400 mb-4">Where innovation meets efficiency</p>
@@ -288,7 +243,7 @@
                         <button class="bg-gray-800 px-3 py-1 rounded text-sm hover:bg-gray-700 transition-colors">Save</button>
                     </div>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in stagger-2">
                     <h3 class="text-xl font-semibold text-teal-400 mb-2">VelocityHub</h3>
                     <p class="text-gray-400 mb-4">Accelerate your business forward</p>
@@ -307,29 +262,41 @@
             <h2 class="text-4xl font-bold text-center mb-16 animate-fade-up">Complete Brand Tools</h2>
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div class="animate-fade-up">
-                    <h3 class="text-2xl font-semibold mb-6">Check Domain & Social Availability</h3>
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-center space-x-3">
-                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                            <span>bee.com - Available</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                            <span>@bee - Available on Twitter</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                            <span>@bee - Taken on Instagram</span>
-                        </div>
+                    <h3 class="text-2xl font-semibold mb-6">Generate an AI Logo</h3>
+                    <p class="text-gray-400 mb-8">Describe the logo you want our AI to create. Be as descriptive as possible for the best results.</p>
+                    
+                    <div class="mb-4">
+                        <label class="tiny-label block mb-2">Brand name</label>
+                        <input id="brand-name" type="text" placeholder="e.g., EcoTech" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-teal-400 focus:outline-none" />
                     </div>
-                    <button class="btn-gradient px-8 py-3 rounded-lg font-semibold">Generate Logo</button>
+
+                    <div class="mb-4">
+                        <label class="tiny-label block mb-2">Describe your logo</label>
+                        <input id="logo-description-input" type="text" placeholder="e.g., A running fox, minimalist style" class="w-full bg-gray-800 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-teal-400 focus:outline-none" />
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button id="generate-logo-btn" class="btn-gradient px-8 py-3 rounded-lg font-semibold">Generate Logo</button>
+                    </div>
                 </div>
-                
+
                 <div class="glass-effect rounded-2xl p-8 animate-scale-in">
-                    <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-teal-400 to-green-600 rounded-2xl flex items-center justify-center">
-                        <span class="text-2xl font-bold text-white">BEE</span>
+                    
+                    <div id="logo-preview" class="w-32 h-32 mx-auto mb-6 preview-box">
+                        <div class="tiny-label text-center">AI Logo Preview</div>
                     </div>
-                    <h4 class="text-xl font-semibold text-center">Logo Preview</h4>
+                    
+                    <div id="logo-loading" class="hidden text-center mb-6">
+                        <div class="animate-spin w-8 h-8 border-2 border-teal-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p class="tiny-label">AI is generating your logo...</p>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="download-svg" class="bg-gray-800 px-4 py-2 rounded-lg mr-3">Download SVG</button>
+                        <button id="download-png" class="btn-gradient px-4 py-2 rounded-lg">Download PNG</button>
+                    </div>
+
+                    <h4 class="text-xl font-semibold text-center mt-6">Logo Preview</h4>
                 </div>
             </div>
         </div>
@@ -346,7 +313,7 @@
                     <h3 class="text-xl font-semibold mb-4">Describe</h3>
                     <p class="text-gray-400">Tell us about your startup, product, or business idea</p>
                 </div>
-                
+
                 <div class="text-center animate-fade-up stagger-1">
                     <div class="w-16 h-16 bg-teal-600 rounded-full mx-auto mb-6 flex items-center justify-center">
                         <span class="text-2xl font-bold">2</span>
@@ -354,7 +321,7 @@
                     <h3 class="text-xl font-semibold mb-4">Generate</h3>
                     <p class="text-gray-400">Our AI creates dozens of unique, brandable names instantly</p>
                 </div>
-                
+
                 <div class="text-center animate-fade-up stagger-2">
                     <div class="w-16 h-16 bg-teal-600 rounded-full mx-auto mb-6 flex items-center justify-center">
                         <span class="text-2xl font-bold">3</span>
@@ -375,19 +342,19 @@
                     <h3 class="text-lg font-semibold mb-2">Startups</h3>
                     <p class="text-gray-400">Launch with a memorable name</p>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in stagger-1 hover:-rotate-1 transition-all duration-300">
                     <div class="text-4xl mb-4">🎨</div>
                     <h3 class="text-lg font-semibold mb-2">Creators</h3>
                     <p class="text-gray-400">Brand your creative projects</p>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in stagger-2 hover:rotate-1 transition-all duration-300">
                     <div class="text-4xl mb-4">🛒</div>
                     <h3 class="text-lg font-semibold mb-2">eCommerce</h3>
                     <p class="text-gray-400">Stand out in the marketplace</p>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in stagger-3 hover:-rotate-1 transition-all duration-300">
                     <div class="text-4xl mb-4">📱</div>
                     <h3 class="text-lg font-semibold mb-2">Mobile Apps</h3>
@@ -413,21 +380,21 @@
                         Get Started
                     </button>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-8 glow-hover animate-scale-in stagger-1 ring-2 ring-teal-400">
                     <h3 class="text-2xl font-bold mb-4">Pro</h3>
                     <div class="text-4xl font-bold mb-6">$19<span class="text-lg text-gray-400">/month</span></div>
                     <ul class="space-y-3 mb-8">
                         <li class="flex items-center"><span class="text-teal-400 mr-2">✓</span>Unlimited names</li>
                         <li class="flex items-center"><span class="text-teal-400 mr-2">✓</span>Premium taglines</li>
-                        <li class="flex items-center"><span class="text-teal-400 mr-2">✓</span>Logo generation</li>
+                        <li class="flex items-center"><span class="text-teal-400 mr-2">✓</span>AI Logo generation</li>
                         <li class="flex items-center"><span class="text-teal-400 mr-2">✓</span>Social media check</li>
                     </ul>
                     <button class="w-full btn-gradient py-3 rounded-lg font-semibold">
                         Subscribe Now
                     </button>
                 </div>
-                
+
                 <div class="glass-effect rounded-xl p-8 glow-hover animate-scale-in stagger-2">
                     <h3 class="text-2xl font-bold mb-4">Enterprise</h3>
                     <div class="text-4xl font-bold mb-6">$99<span class="text-lg text-gray-400">/month</span></div>
@@ -449,7 +416,7 @@
         <div class="max-w-4xl mx-auto text-center">
             <h2 class="text-4xl font-bold mb-6 animate-fade-up">Want even more creative names?</h2>
             <p class="text-xl text-gray-400 mb-12 animate-fade-up stagger-1">Get 20+ extra name ideas in your inbox.</p>
-            
+
             <div class="max-w-2xl mx-auto">
                  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSftbWES6jvtnykdKjwrk-CoL6Ymzwm4amMRychndE6Fxj4tWg/viewform?embedded=true" width="100%" height="554" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
             </div>
@@ -463,30 +430,30 @@
                 <div>
                     <div class="text-2xl font-bold text-gradient mb-4">Bee</div>
                     <p class="text-gray-400 mb-6">AI-powered naming for the next generation of brands.</p>
-                    
+
                     <div class="flex space-x-4">
-                        <a href="https://www.facebook.com/bee" target="_blank" class="social-icon group">
+                        <a href="https://www.facebook.com/murshiduzzamanDm/" target="_blank" class="social-icon group">
                             <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                             </svg>
                         </a>
-                        
-                        <a href="https://www.instagram.com/bee" target="_blank" class="social-icon group">
+
+                        <a href="https://www.instagram.com/murshiduzzamandm/" target="_blank" class="social-icon group">
                             <svg class="w-6 h-6 text-gray-400 group-hover:text-pink-500 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987c6.62 0 11.987-5.367 11.987-11.987C24.014 5.367 18.637.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.328-1.297L6.42 14.39c.636.748 1.568 1.217 2.607 1.217c1.892 0 3.429-1.54 3.429-3.429c0-1.892-1.537-3.429-3.429-3.429c-1.04 0-1.971.469-2.607 1.217l-1.299-1.299c.88-.807 2.031-1.299 3.328-1.299c2.726 0 4.93 2.204 4.93 4.93c0 2.725-2.204 4.929-4.93 4.929z"/>
                                 <path d="M12 7.378c-2.552 0-4.622 2.069-4.622 4.622S9.448 16.622 12 16.622s4.622-2.069 4.622-4.622S14.552 7.378 12 7.378zM12 14.622c-1.45 0-2.622-1.172-2.622-2.622S10.55 9.378 12 9.378s2.622 1.172 2.622 2.622S13.45 14.622 12 14.622z"/>
                                 <circle cx="16.804" cy="7.196" r="1.078"/>
                             </svg>
                         </a>
-                        
-                        <a href="https://www.behance.net/bee" target="_blank" class="social-icon group">
+
+                        <a href="https://www.behance.net/murshiduzzaman" target="_blank" class="social-icon group">
                             <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-400 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M0 4.4v15.2C0 21.5 1.5 23 3.4 23h17.2c1.9 0 3.4-1.5 3.4-3.4V4.4C24 2.5 22.5 1 20.6 1H3.4C1.5 1 0 2.5 0 4.4zM9.5 7.5c.9 0 1.7.3 2.3.8c.6.5.9 1.2.9 2.1c0 .7-.2 1.3-.6 1.8c-.2.3-.5.5-.8.7c.5.2.9.5 1.2.9c.3.5.5 1.1.5 1.8c0 1-.4 1.8-1.1 2.4c-.4.3-.8.5-1.3.6c-.5.1-1 .2-1.5.2H3V7.5h6.5zm5.8 1.2h4.3v1H15.3v-1zM4.5 9.2v2.3h4.3c.4 0 .8-.1 1.1-.3c.3-.2.5-.6.5-1c0-.4-.2-.8-.5-1c-.3-.2-.7-.3-1.1-.3H4.5v.3zm0 3.8v2.8h4.8c.5 0 .9-.1 1.2-.4c.3-.3.5-.7.5-1.2c0-.5-.2-.9-.5-1.2c-.3-.3-.7-.4-1.2-.4H4.5v.4zm11.3-1.5c.2-.3.5-.5.9-.6c.4-.1.8-.2 1.2-.2c.6 0 1.1.1 1.5.4c.4.3.7.7.8 1.2h-4.9c.1-.3.3-.6.5-.8zm0 2.3h5.5c0 .6-.2 1.1-.5 1.5c-.5.6-1.2.9-2.1.9c-.6 0-1.1-.2-1.5-.5c-.4-.4-.7-.9-.8-1.5c-.1-.5-.1-.9.4-1.4c.3-.4.6-.7 1-.9z"/>
                             </svg>
                         </a>
                     </div>
                 </div>
-                
+
                 <div>
                     <h4 class="font-semibold mb-4">Product</h4>
                     <ul class="space-y-2 text-gray-400">
@@ -495,7 +462,7 @@
                         <li><a href="#" class="hover:text-teal-400 transition-colors">API</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="font-semibold mb-4">Company</h4>
                     <ul class="space-y-2 text-gray-400">
@@ -504,7 +471,7 @@
                         <li><a href="#" class="hover:text-teal-400 transition-colors">Contact</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="font-semibold mb-4">Legal</h4>
                     <ul class="space-y-2 text-gray-400">
@@ -514,15 +481,45 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
                 <div class="gradient-spotlight rounded-full w-32 h-1 mx-auto mb-4"></div>
-                <p>&copy; 2025 Bee. Built with ❤️ by Bee</p>
+                <p>&copy; 2025 Bee. Built by SHAWN</p>
             </div>
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.waves.min.js"></script>
+
     <script>
+        // Initialize Vanta waves with interactive motion
+        (function initVanta() {
+            try {
+                // If VANTA loaded
+                if (window.VANTA) {
+                    VANTA.WAVES({
+                        el: "#hero-bg",
+                        mouseControls: true,
+                        touchControls: true,
+                        gyroControls: false,
+                        minHeight: 200.00,
+                        minWidth: 200.00,
+                        scale: 1.00,
+                        scaleMobile: 1.00,
+                        color: 0x0AB6BC,
+                        shininess: 60,
+                        waveHeight: 20,
+                        waveSpeed: 0.8,
+                        zoom: 0.95,
+                        backgroundColor: 0x000000
+                    });
+                }
+            } catch (e) {
+                console.warn('Vanta init failed', e);
+            }
+        })();
+
         // Mobile menu toggle
         const mobileToggle = document.getElementById('mobile-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -561,12 +558,12 @@
             'Plant-based meal delivery service',
             'Cryptocurrency trading platform'
         ];
-        
+
         let placeholderIndex = 0;
-        
+
         setInterval(() => {
             placeholderIndex = (placeholderIndex + 1) % placeholders.length;
-            mainInput.placeholder = `Try: ${placeholders[placeholderIndex]}`;
+            if (mainInput) mainInput.placeholder = `Try: ${placeholders[placeholderIndex]}`;
         }, 3000);
 
         // Scroll-triggered animations
@@ -594,17 +591,14 @@
             el.style.animationPlayState = 'running';
         });
 
-        // --- START: UPDATED SCRIPT FOR HERO AND DEMO FORMS ---
+        // --- START: NAME GENERATOR LOGIC ---
 
         // --- Get Elements ---
-        // Hero Section
         const heroInput = document.getElementById('startup-input');
         const heroGenerateBtn = document.getElementById('hero-generate-btn');
         const heroLoading = document.getElementById('hero-loading');
         const heroResults = document.getElementById('hero-results');
         const heroNamesGrid = document.getElementById('hero-names-grid');
-
-        // Demo Section
         const demoInput = document.getElementById('demo-input');
         const demoGenerateBtn = document.getElementById('demo-generate-btn');
         const demoLoading = document.getElementById('demo-loading');
@@ -613,12 +607,13 @@
 
         // --- Reusable Functions ---
         function createNameCard(nameData) {
+            const safeName = (nameData.name || '').replace(/'/g, "\\'");
             return `
                 <div class="glass-effect rounded-xl p-6 glow-hover animate-scale-in">
                     <h4 class="text-lg font-semibold text-teal-400 mb-2">${nameData.name}</h4>
                     <p class="text-gray-400 mb-4 text-sm">${nameData.tagline}</p>
                     <div class="flex space-x-2">
-                        <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs transition-colors" onclick="copyToClipboard('${nameData.name}')">Copy</button>
+                        <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-xs transition-colors" onclick="copyToClipboard('${safeName}', this)">Copy</button>
                         <button class="bg-gray-700 hover:bg-red-600 px-3 py-1 rounded text-xs transition-colors">❤️</button>
                         <button class="bg-gray-700 hover:bg-blue-600 px-3 py-1 rounded text-xs transition-colors">Save</button>
                     </div>
@@ -626,61 +621,45 @@
             `;
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = event.target.textContent;
-                event.target.textContent = 'Copied!';
-                event.target.classList.add('bg-green-600');
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).catch(() => {});
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('bg-green-600');
                 setTimeout(() => {
-                    event.target.textContent = originalText;
-                    event.target.classList.remove('bg-green-600');
-                }, 1000);
-            });
+                    btn.textContent = originalText;
+                    btn.classList.remove('bg-green-600');
+                }, 1200);
+            }
         }
         window.copyToClipboard = copyToClipboard;
 
-        // Reusable function to fetch names from the AI
         async function getAINames(inputEl, loadingEl, resultsEl, gridEl) {
             const prompt = inputEl.value.trim();
-
             if (!prompt) {
                 inputEl.focus();
                 inputEl.classList.add('ring-2', 'ring-red-500');
-                setTimeout(() => {
-                    inputEl.classList.remove('ring-2', 'ring-red-500');
-                }, 2000);
+                setTimeout(() => inputEl.classList.remove('ring-2', 'ring-red-500'), 2000);
                 return;
             }
-
             resultsEl.classList.add('hidden');
             gridEl.innerHTML = '';
             loadingEl.classList.remove('hidden');
-
             try {
                 const response = await fetch('/.netlify/functions/generate-names', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt }),
                 });
-
-                if (!response.ok) {
-                    throw new Error('Failed to get a response from the AI.');
-                }
-
+                if (!response.ok) throw new Error('Failed to get a response from the AI.');
                 const data = await response.json();
-                const namesArray = data.names.trim().split('\n');
-                
+                const namesArray = (data.names || '').trim().split('\n').filter(Boolean);
                 const namesHtml = namesArray.map(line => {
                     const parts = line.split(':');
-                    const name = parts[0] ? parts[0].trim() : 'Unnamed';
-                    const tagline = parts[1] ? parts[1].trim() : 'No tagline provided.';
-                    return createNameCard({ name, tagline });
+                    return createNameCard({ name: parts[0]?.trim(), tagline: parts[1]?.trim() });
                 }).join('');
-                
                 gridEl.innerHTML = namesHtml;
-
             } catch (error) {
                 console.error(error);
                 gridEl.innerHTML = `<p class="text-red-400 text-center col-span-full">Sorry, something went wrong. Please try again.</p>`;
@@ -690,31 +669,98 @@
             }
         }
 
-        // --- Event Listeners ---
-        // Hero Section Button
-        heroGenerateBtn.addEventListener('click', () => {
-            getAINames(heroInput, heroLoading, heroResults, heroNamesGrid);
-        });
+        if (heroGenerateBtn) heroGenerateBtn.addEventListener('click', () => getAINames(heroInput, heroLoading, heroResults, heroNamesGrid));
+        if (demoGenerateBtn) demoGenerateBtn.addEventListener('click', () => getAINames(demoInput, demoLoading, demoResults, demoNamesGrid));
+        if (heroInput) heroInput.addEventListener('keypress', (e) => e.key === 'Enter' && heroGenerateBtn.click());
+        if (demoInput) demoInput.addEventListener('keypress', (e) => e.key === 'Enter' && demoGenerateBtn.click());
+        // --- END: NAME GENERATOR LOGIC ---
 
-        // Demo Section Button
-        demoGenerateBtn.addEventListener('click', () => {
-            getAINames(demoInput, demoLoading, demoResults, demoNamesGrid);
-        });
 
-        // Allow Enter key to trigger generation
-        heroInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                heroGenerateBtn.click();
+        /* -------------------------------
+           START: AI Logo Generator Logic
+           ------------------------------- */
+
+        // DOM for logo generator
+        const brandInput = document.getElementById('brand-name');
+        const generateBtn = document.getElementById('generate-logo-btn');
+        const previewBox = document.getElementById('logo-preview');
+        const downloadSvgBtn = document.getElementById('download-svg');
+        const downloadPngBtn = document.getElementById('download-png');
+        const logoDescriptionInput = document.getElementById('logo-description-input');
+        const logoLoading = document.getElementById('logo-loading');
+
+        let lastSvgString = ''; // This will now store the base64 image data URL
+
+        generateBtn && generateBtn.addEventListener('click', async () => {
+            const prompt = logoDescriptionInput.value.trim();
+            const brandName = brandInput.value.trim() || 'Logo';
+
+            if (!prompt) {
+                alert('Please describe the logo you want to generate.');
+                logoDescriptionInput.focus();
+                return;
+            }
+
+            // Show loading state
+            previewBox.innerHTML = '';
+            previewBox.classList.add('hidden');
+            logoLoading.classList.remove('hidden');
+            downloadSvgBtn.disabled = true;
+            downloadPngBtn.disabled = true;
+
+            try {
+                const response = await fetch('/.netlify/functions/generate-logo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get a response from the AI.');
+                }
+
+                const data = await response.json();
+                lastSvgString = data.image; // Store the base64 data URL
+
+                // Render the AI-generated image
+                previewBox.innerHTML = `
+                    <img style="width:128px;height:128px;object-fit:contain;border-radius:12px;" 
+                         src="${lastSvgString}" alt="${brandName} Logo Preview" />
+                `;
+
+            } catch (error) {
+                console.error(error);
+                previewBox.innerHTML = `<p class="text-red-400 text-center text-xs p-2">Sorry, something went wrong. Please try again.</p>`;
+            } finally {
+                // Hide loading state
+                logoLoading.classList.add('hidden');
+                previewBox.classList.remove('hidden');
+                downloadSvgBtn.disabled = false;
+                downloadPngBtn.disabled = false;
             }
         });
 
-        demoInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                demoGenerateBtn.click();
-            }
+        downloadSvgBtn && downloadSvgBtn.addEventListener('click', () => {
+            alert('AI-generated logos can only be downloaded as PNG.');
         });
 
-        // --- END: UPDATED SCRIPT FOR HERO AND DEMO FORMS ---
+        downloadPngBtn && downloadPngBtn.addEventListener('click', () => {
+            if (!lastSvgString) {
+                alert('Please generate a logo first.');
+                return;
+            }
+            
+            const a = document.createElement('a');
+            a.href = lastSvgString; // The base64 data URL
+            a.download = ((brandInput && brandInput.value) ? brandInput.value.replace(/\s+/g, '_') : 'logo') + '.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        });
+
+        /* -------------------------------
+           END: AI Logo Generator Logic
+           ------------------------------- */
 
     </script>
 </body>
