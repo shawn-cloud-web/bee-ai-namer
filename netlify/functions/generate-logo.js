@@ -1,160 +1,117 @@
-// এই ফাইলটা এই জায়গায় রাখুন: netlify/functions/generate-logo.js
+// এই ফাইলটি আপনার প্রজেক্টের এই ফোল্ডারে রাখুন: netlify/functions/generate-logo.js
 
-const API_KEY = process.env.FIREWORKS_API_KEY || 'fw_3ZJ9huy4CtbqPnCTR5ytxTrx';
+// fetch ফাংশন import করা হচ্ছে
+const fetch = require('node-fetch');
 
-exports.handler = async (event, context) => {
+// Netlify তে সেট করা আপনার API KEY এখানে লোড হবে
+const API_KEY = process.env.FIREWORKS_API_KEY;
+
+exports.handler = async (event) => {
   // CORS headers - এটা ব্রাউজার এবং সার্ভারের মধ্যে যোগাযোগের জন্য দরকার
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': '*', // যেকোনো ওয়েবসাইট থেকে অ্যাক্সেসের অনুমতি দেয়
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json',
   };
 
-  // OPTIONS request handle করা (এটা ব্রাউজার নিজে নিজে পাঠায়)
+  // ব্রাউজার থেকে পাঠানো OPTIONS রিকোয়েস্ট হ্যান্ডেল করার জন্য
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
-  }
-
-  // শুধুমাত্র POST request গ্রহণ করব
-  if (event.httpMethod !== 'POST') {
-    return { 
-      statusCode: 405, 
+    return {
+      statusCode: 200,
       headers,
-      body: JSON.stringify({ error: 'শুধুমাত্র POST method allowed' })
+      body: JSON.stringify({ message: 'OPTIONS request handled' }),
     };
   }
 
-  console.log('ফাংশন শুরু হয়েছে, API key আছে কি?', !!API_KEY);
+  // শুধুমাত্র POST রিকোয়েস্ট গ্রহণ করা হবে
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'শুধুমাত্র POST method ব্যবহার করুন' }),
+    };
+  }
+
+  // API Key সেট করা আছে কিনা তা চেক করা
+  if (!API_KEY) {
+    console.error('Fireworks API Key সেট করা নেই।');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'সার্ভার কনফিগারেশনে সমস্যা। API Key পাওয়া যায়নি।' }),
+    };
+  }
 
   try {
-    // ইউজারের পাঠানো ডেটা পার্স করা
     const { prompt } = JSON.parse(event.body);
 
     if (!prompt) {
-      return { 
-        statusCode: 400, 
+      return {
+        statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'প্রম্পট দিতে হবে' })
+        body: JSON.stringify({ error: 'লোগোর জন্য একটি বর্ণনা দিন।' }),
       };
     }
 
-    console.log('লোগো তৈরি করা হচ্ছে:', prompt);
+    // AI এর জন্য একটি ভালো প্রম্পট তৈরি করা
+    const aiPrompt = `A professional logo for "${prompt}". Minimalist, clean, modern vector graphic. Simple geometric shapes, suitable for business branding. On a plain white background. High quality, clear design.`;
 
-    // AI এর জন্য ভালো প্রম্পট তৈরি করা
-    const aiPrompt = `Professional logo design: ${prompt}. Minimalist, clean, modern vector graphic. Simple geometric shapes, business branding style. Plain white background. High quality logo.`;
+    // Fireworks AI এর সঠিক এবং বর্তমানে কার্যকর মডেলের URL
+    const API_URL = "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/stable-diffusion-xl-1024-v1-0";
 
-    // Fireworks AI এর সঠিক URL
-    const API_URL = "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/flux-1-schnell";
+    console.log('API তে রিকোয়েস্ট পাঠানো হচ্ছে:', API_URL);
 
-    console.log('API তে request পাঠানো হচ্ছে...');
-
-    // API কল করা
+    // Fireworks AI কে লোগো তৈরির জন্য রিকোয়েস্ট পাঠানো
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'image/png', // আমরা সরাসরি ইমেজ ফাইল চাই
       },
       body: JSON.stringify({
         prompt: aiPrompt,
-        width: 512,
         height: 512,
-        steps: 4,
-        guidance_scale: 1.0,
-        seed: Math.floor(Math.random() * 100000),
+        width: 512,
+        steps: 30, // ভালো কোয়ালিটির জন্য স্টেপস বাড়ানো হয়েছে
+        guidance_scale: 7,
+        seed: Math.floor(Math.random() * 1000000),
         safety_check: false,
-        output_image_format: "PNG"
+        output_image_format: "PNG",
       }),
     });
 
-    console.log('API response status:', response.status);
-
-    const responseText = await response.text();
-    
+    // যদি API থেকে রেসপন্স সফল না হয়
     if (!response.ok) {
-      console.error('API error:', response.status, responseText);
-      
-      // যদি প্রথম API fail করে, দ্বিতীয় API try করি
-      console.log('বিকল্প API try করা হচ্ছে...');
-      
-      const fallbackURL = "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/stable-diffusion-xl-1024-v1-0";
-      
-      const fallbackResponse = await fetch(fallbackURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          prompt: aiPrompt,
-          width: 512,
-          height: 512,
-          steps: 20,
-          guidance_scale: 7.5,
-          seed: Math.floor(Math.random() * 100000),
-          safety_check: false,
-          output_image_format: "PNG"
-        }),
-      });
-
-      const fallbackText = await fallbackResponse.text();
-      
-      if (!fallbackResponse.ok) {
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ 
-            error: `উভয় API fail হয়েছে। Error: ${responseText}`,
-            details: 'API key বা credit সমস্যা হতে পারে'
-          })
-        };
-      }
-
-      // বিকল্প API সফল হলে
-      const fallbackData = JSON.parse(fallbackText);
-      if (fallbackData && fallbackData.image) {
-        const imageData = fallbackData.image.startsWith('data:') ? 
-          fallbackData.image : 
-          `data:image/png;base64,${fallbackData.image}`;
-
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ image: imageData }),
-        };
-      }
+      const errorBody = await response.text();
+      console.error('API Error:', response.status, errorBody);
+      return {
+        statusCode: response.status,
+        headers,
+        body: JSON.stringify({ error: `AI মডেল থেকে ছবি তৈরি করা যায়নি। Error: ${errorBody}` }),
+      };
     }
 
-    // প্রধান API সফল হলে
-    const data = JSON.parse(responseText);
-    console.log('সফল! Image পাওয়া গেছে');
+    // API থেকে পাওয়া ইমেজকে Base64 ফরম্যাটে কনভার্ট করা
+    const imageBuffer = await response.buffer();
+    const base64Image = imageBuffer.toString('base64');
+    const imageDataUrl = `data:image/png;base64,${base64Image}`;
 
-    let imageData;
-    if (data.image) {
-      imageData = data.image.startsWith('data:') ? 
-        data.image : 
-        `data:image/png;base64,${data.image}`;
-    } else {
-      throw new Error('API response এ image পাওয়া যায়নি');
-    }
+    console.log('সফলভাবে ইমেজ তৈরি হয়েছে!');
 
+    // ব্রাউজারে ইমেজ ডেটা পাঠানো
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ image: imageData }),
+      body: JSON.stringify({ image: imageDataUrl }),
     };
 
   } catch (error) {
-    console.error('ফাংশনে error:', error);
-    
+    console.error('Netlify Function এ একটি বড় সমস্যা হয়েছে:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: 'সার্ভার error: ' + error.message,
-        help: 'Netlify logs চেক করুন'
-      }),
+      body: JSON.stringify({ error: 'সার্ভারে একটি অপ্রত্যাশিত সমস্যা হয়েছে: ' + error.message }),
     };
   }
 };
