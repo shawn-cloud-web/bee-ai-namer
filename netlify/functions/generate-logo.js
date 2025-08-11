@@ -71,9 +71,9 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         prompt: aiPrompt,
-        height: 512,
-        width: 512,
-        steps: 30, // ভালো কোয়ালিটির জন্য স্টেপস বাড়ানো হয়েছে
+        height: 1024, // *** পরিবর্তন এখানে ***
+        width: 1024,  // *** পরিবর্তন এখানে ***
+        steps: 30,
         guidance_scale: 7,
         seed: Math.floor(Math.random() * 1000000),
         safety_check: false,
